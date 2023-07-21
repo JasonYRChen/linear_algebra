@@ -36,13 +36,13 @@ def solve_linear_equations(matrix):
 
     total_elements = matrix.shape[1] - 1
     variables = np.eye(total_elements, total_elements + 1)
-    matrix = reduced_row_echelon_form(matrix)
+    matrix = reduced_row_echelon_form(matrix, total_elements + 1)
 
     # solve each variable in terms of variables and constant from top of
     # the matrix to the bottom. If contradiction occur, the system is 
     # inconsistent, then returns None.
     for i, row in enumerate(matrix):
-        leading_index = leading_nonzero(matrix, i)
+        leading_index = leading_nonzero(matrix, i, total_elements + 1) 
         # contradiction occurs: 0 = 1
         if leading_index == total_elements:
             return [], []
@@ -84,7 +84,10 @@ if __name__ == '__main__':
     a7 = np.zeros((3, 4))
     a8 = np.array([[0, 0, 0, 0], [0, 1, 0, 0], [0, 0, 0, 0], [0, 0, 0, 1]])
     a9 = np.array([[1, 2, -1, 2, 1, 2], [-1, -2, 1, 2, 3, 6], [2, 4, -3, 2, 0, 3], [-3, -6, 2, 0, 3, 9]])
-    matrix = a9
+    a0 = np.array([[1, 0, 0, -3, 0], 
+                   [0, 1, 0, -4, 0],
+                   [0, 0, 1, 5, 0]])
+    matrix = a0
     print(f'original matrix:\n{matrix}')
     s = solve_linear_equations(matrix)
     print(f'solutions:\n{s[0]}\n{s[1]}')
