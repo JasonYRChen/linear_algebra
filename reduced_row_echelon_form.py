@@ -102,6 +102,49 @@ def reduced_row_echelon_form(matrix, max_column_number=0):
     return matrix
 
 
+def pivot_position(matrix, max_column_number=0):
+    """
+        Return the pivot column index of a reduced row echelon matrix.
+
+        para:
+          matrix: np.ndarray, it must be in reduced row echelon form.
+          max_column_number: int, specify the max column number to search
+            for pivot column. If it is 0, the whole range of columns will
+            be searched.
+
+        return:
+          column_index: list, the indices of pivot columns.
+    """
+
+    max_col = max_column_number if max_column_number else matrix.shape[1]
+    row, col = 0, 0
+    column_index = []
+    while col != -1 and row < matrix.shape[0]:
+        col = leading_nonzero(matrix, row, max_col)
+        if col != -1:
+            column_index.append(col)
+            row += 1
+    return column_index
+
+
+def column_vectors(matrix):
+    """
+        Return column vectors of a matrix. Those column vectors form a 
+        basis for the matrix.
+
+        para:
+          matrix: np.ndarray.
+
+        return:
+          columns: np.ndarray of ndarray, the column vectors.
+    """
+
+    reduced_matrix = reduced_row_echelon_form(matrix)
+    indices = pivot_position(reduced_matrix)
+    columns = matrix[:, indices]
+    return columns
+
+
 if __name__ == '__main__':
     from elementary_row_operation import to_ndarray
     a1 = to_ndarray([[r*3+c for c in range(1, 4)] for r in range(0, 4)])
@@ -120,3 +163,4 @@ if __name__ == '__main__':
     max_col = 0
     print(matrix)
     print(reduced_row_echelon_form(matrix, max_col))
+    print(column_vectors(matrix))
