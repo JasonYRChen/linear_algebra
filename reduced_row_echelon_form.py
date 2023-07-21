@@ -2,24 +2,26 @@ import numpy as np
 from elementary_row_operation import *
 
 
-def leading_nonzero(matrix, row):
+def leading_nonzero(matrix, row, max_column_number):
     """
         Return the index of leading non-zero element in the row.
 
         paras:
           matrix: np.ndarray.
           row: int, the row to find the index of leading non-zero element.
+          max_column_number: int, the maximum number of column to find
+            leading nonzero element.
 
         return:
           index: int, index of the leading non-zero element.
     """
 
-    indices = np.where(matrix[row] != 0)[0]
+    indices = np.where(matrix[row][:max_column_number] != 0)[0]
     index = indices[0] if indices.size else -1
     return index
 
 
-def set_pivot_row(matrix, pivot, column):
+def set_pivot_row(matrix, pivot, column, max_column_number):
     """
         Interchange two rows in the matrix to set pivot row at current
         pivot position. Return the interchanged matrix and next pivot and
@@ -29,6 +31,8 @@ def set_pivot_row(matrix, pivot, column):
           matrix: np.ndarray.
           pivot: int, the pivot position to find.
           column: int, the first column to start to find.
+          max_column_number: int, the maximum number of column to find
+            leading nonzero element.
 
         return:
           matrix: np.ndarray.
@@ -36,8 +40,8 @@ def set_pivot_row(matrix, pivot, column):
           next_column: int, the next column.
     """
 
-    # column = leading_nonzero(matrix, pivot - 1) + 1 if pivot else 0
-    for c in range(column, matrix.shape[1]):
+    max_col = min(matrix.shape[1], max_column_number)
+    for c in range(column, max_col):
         for r in range(pivot, matrix.shape[0]):
             if matrix[r][c]:
                 matrix = interchange(matrix, pivot, r)
@@ -47,20 +51,23 @@ def set_pivot_row(matrix, pivot, column):
         break
 
     # determine the next pivot and column
-    column = leading_nonzero(matrix, pivot)
-    if (column == matrix.shape[1] - 1) or (column == -1):
+    column = leading_nonzero(matrix, pivot, max_column_number)
+    if (column >= max_col - 1) or (column == -1):
         column = -2
     next_pivot = pivot + 1
     next_column = column + 1
     return matrix, next_pivot, next_column
 
 
-def reduced_row_echelon_form(matrix):
+def reduced_row_echelon_form(matrix, max_column_number=0):
     """
         Calculate reduced row echelon form of input matrix.
 
         para:
           matrix: np.ndarray
+          max_column_number: int, the maximum number of column to find
+            leading nonzero element. Default zero means to use the total
+            matrix column numbers.
 
         return:
           matrix: np.ndarray, the reduced row echelon form of input matrix.
@@ -69,13 +76,15 @@ def reduced_row_echelon_form(matrix):
     matrix = np.array(matrix) # copy original matrix
     pivot = 0
     column = 0
+    max_col = max_column_number if max_column_number else matrix.shape[1]
 
     for _ in range(min(matrix.shape)):
         # find and set pivot row
-        matrix, pivot, column = set_pivot_row(matrix, pivot, column)
+        matrix, pivot, column = set_pivot_row(matrix, pivot, column, max_col)
+        #print(f'-----\n{matrix}\npivot: {pivot}, column: {column}\n-----')
 
         # scaling the pivot row by inverse of leading nonzero number 
-        pivot_column = leading_nonzero(matrix, pivot - 1)
+        pivot_column = leading_nonzero(matrix, pivot - 1, max_col)
         leading_number = matrix[pivot - 1][pivot_column]
         scalar = 1 / leading_number if leading_number else 0
         matrix = scaling(matrix, pivot - 1, scalar)
@@ -104,7 +113,10 @@ if __name__ == '__main__':
     a7 = np.zeros((3, 3))
     a8 = np.array([[0, 0, 0, 0], [0, 1, 0, 0], [0, 0, 0, 0], [0, 0, 0, 1]])
     a9 = np.array([[1, 2, -1, 2, 1, 2], [-1, -2, 1, 2, 3, 6], [2, 4, -3, 2, 0, 3], [-3, -6, 2, 0, 3, 9]])
+    a0 = np.array([[1, 2, 3], [4, 5, 6], [7, 8, 9]])
+    a0 = np.concatenate((a0, np.identity(3)), axis=1)
 
     matrix = a9
+    max_col = 0
     print(matrix)
-    print(reduced_row_echelon_form(matrix))
+    print(reduced_row_echelon_form(matrix, max_col))
