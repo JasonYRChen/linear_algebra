@@ -14,7 +14,7 @@ def modified_gram_schmidt(matrix):
           matrix: np.ndarray, orthonormal column vectors.
     """
 
-    matrix = np.array(matrix)
+    matrix = np.array(matrix).astype(float)
     cols = matrix.shape[1]
     for i in range(cols):
         matrix[:, i] /= norm(matrix[:, i])
@@ -24,9 +24,9 @@ def modified_gram_schmidt(matrix):
 
 
 if __name__ == '__main__':
-    a1 = np.array([[1, 2, 1], [1, 1, 1], [1, 0, 2], [1, 1, 1]]).astype(float)
+    a1 = np.array([[1, 2, 1], [1, 1, 1], [1, 0, 2], [1, 1, 1]])
+    a2 = np.array([[1, 3, 4], [2, 5, 7], [1, 2, 3]])
 
-    matrix = a1
+    matrix = a2
     print(f'before:\n{matrix}')
     print(f'MGS:\n{modified_gram_schmidt(matrix)}')
-    print(f'after:\n{matrix}')
