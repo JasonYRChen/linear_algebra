@@ -5,7 +5,8 @@ from inverse_matrix import inverse_matrix
 def orthogonal_projection_matrix_LI(matrix):
     """
         Return orthogonal projection matrix of a matrix with linearly
-        independent columns.
+        independent columns. If column vectors of the matrix are not LI,
+        an empty np.ndarray returns.
 
         para:
           matrix: np.ndarray, a matrix with linearly independent columns.
