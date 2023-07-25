@@ -54,17 +54,6 @@ def solve_linear_equations(matrix):
         variables[leading_index] -= row
         variables[leading_index][-1] *= -1.0
 
-    # solve each variable in back-substitution style and update each 
-    # corresponding element in the equation of the variable.
-    for variable, index in zip(variables[::-1], range(len(variables)-1, -1, -1)):
-        # search for non-zero coefficient in variable's equation
-        for i in range(total_elements):
-            # add variable with basic variable times the corresponding
-            # coefficient to the constant part of the variable's equation.
-            if variable[i] and not isinstance(variables[i], type(variable)):
-                variable[-1] += variable[i] * variables[i]
-                variable[i] = 0
-
     free_vectors_position = np.any(variables, 0)
     free_vectors_position[-1] = False
     free_vectors = variables[:, free_vectors_position]
@@ -86,7 +75,7 @@ if __name__ == '__main__':
     a0 = np.array([[1, 0, 0, -3, 0], 
                    [0, 1, 0, -4, 0],
                    [0, 0, 1, 5, 0]])
-    matrix = a7
+    matrix = a6
     print(f'original matrix:\n{matrix}')
     s = solve_linear_equations(matrix)
     print(f'solutions:\n{s[0]}\n{s[1]}')
