@@ -65,11 +65,10 @@ def solve_linear_equations(matrix):
                 variable[-1] += variable[i] * variables[i]
                 variable[i] = 0
 
-    free_vectors = []
-    for i in range(total_elements):
-        if any(variables[:, i]):
-            free_vectors.append(variables[:, i])
-    basic_vector = variables[:, -1]
+    free_vectors_position = np.any(variables, 0)
+    free_vectors_position[-1] = False
+    free_vectors = variables[:, free_vectors_position]
+    basic_vector = variables[:, -1][:, np.newaxis]
 
     return basic_vector, free_vectors
 
@@ -87,7 +86,7 @@ if __name__ == '__main__':
     a0 = np.array([[1, 0, 0, -3, 0], 
                    [0, 1, 0, -4, 0],
                    [0, 0, 1, 5, 0]])
-    matrix = a0
+    matrix = a7
     print(f'original matrix:\n{matrix}')
     s = solve_linear_equations(matrix)
     print(f'solutions:\n{s[0]}\n{s[1]}')
