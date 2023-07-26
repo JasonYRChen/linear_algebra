@@ -68,7 +68,7 @@ def least_squares_approximation_error(target_vector, approx_vector):
           error: float, the approximation error.
     """
 
-    error = sum((target_vector - approx_vector) ** 2)
+    error = sum((target_vector - approx_vector) ** 2)[0]
     return error 
 
 
@@ -77,8 +77,12 @@ if __name__ == '__main__':
           np.array([2.0, 2.1, 2.1, 2.03, 2.04])[:, np.newaxis])
     a1 = (np.ones((5, 1)),
           np.array([2.0, 2.1, 2.1, 2.03, 2.04])[:, np.newaxis])
+    
+    t = np.array([0, 1, 2, 3, 3.5])[:, np.newaxis]
+    a2 = (np.concatenate((t, t**2), 1),
+          np.array([100, 118, 92, 48, 7])[:, np.newaxis])
 
-    system = a1
+    system = a2
     ls_coef = least_squares_coefficients(*system)
     approx_vector = least_squares_approximation(*system)
     print(f'x:\n{system[0]}')
@@ -87,4 +91,4 @@ if __name__ == '__main__':
         matrix = np.concatenate((np.ones((system[0].shape[0], 1)), system[0]), axis = 1)
         print(f'least squares approximation:\n{matrix @ ls_coef}')
         print(f'least squares approximation directly:\n{approx_vector}')
-        print(f'error\n{least_squares_approximation_error(system[0], approx_vector)}')
+        print(f'error\n{least_squares_approximation_error(system[1], approx_vector)}')
