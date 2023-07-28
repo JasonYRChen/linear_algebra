@@ -81,8 +81,6 @@ def reduced_row_echelon_form(matrix, max_column_number=0):
     for _ in range(min(matrix.shape)):
         # find and set pivot row
         matrix, pivot, column = set_pivot_row(matrix, pivot, column, max_col)
-        #print(f'-----\n{matrix}\npivot: {pivot}, column: {column}\n-----')
-
         # scaling the pivot row by inverse of leading nonzero number 
         pivot_column = leading_nonzero(matrix, pivot - 1, max_col)
         leading_number = matrix[pivot - 1][pivot_column]
