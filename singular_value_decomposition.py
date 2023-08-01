@@ -56,16 +56,3 @@ def singular_value_decomposition(matrix):
         u_matrix, v_matrix = eig_vectors2, eig_vectors1
 
     return u_matrix, sigma_matrix, v_matrix
-    
-
-if __name__ == '__main__':
-    a0 = np.array([[0, 1, 2], [1, 0, 1]])
-    a1 = np.array([[1, 3, 2, 1], [3, 1, 2, -1], [1, 1, 1, 0]])
-
-    matrix = a0.T
-    U, S, V = singular_value_decomposition(matrix)
-    print(f'U:\n{U}')
-    print(f'S:\n{S}')
-    print(f'V:\n{V}')
-    print(f'matrix:\n{matrix}')
-    print(f'U@S@V:\n{U @ S @ V.T}')
