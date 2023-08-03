@@ -21,45 +21,31 @@ def leading_nonzero(matrix, row, max_column_number):
     return index
 
 
-def set_pivot_row(matrix, pivot, column, max_column_number):
+def pivot_row(matrix, pivot, max_column):
     """
-        Interchange two rows in the matrix to set pivot row at current
-        pivot position. Return the interchanged matrix and next pivot and
-        next column to deal with.
+        Return a tuple of indices of pivot row and column. This function 
+        will start finding the pivot postion from "pivot" row and "pivot"
+        column to their upper boundaries.
 
         paras:
-          matrix: np.ndarray.
+          matrix: np.ndarray
           pivot: int, the pivot position to find.
-          column: int, the first column to start to find.
-          max_column_number: int, the maximum number of column to find
-            leading nonzero element.
+          max_column: int, if you don't want to find pivot column beyond a
+            certain column, set this value. This value is excluded to find.
 
         return:
-          matrix: np.ndarray.
-          next_pivot: int, the next pivot.
-          next_column: int, the next column.
+          pivot row and column: (int, int), return pivot position if found,
+            otherwise (-1, -1) will return as not found.
     """
 
-    max_col = min(matrix.shape[1], max_column_number)
-    for c in range(column, max_col):
-        for r in range(pivot, matrix.shape[0]):
-            if matrix[r][c]:
-                matrix = interchange(matrix, pivot, r)
-                break
-        else:
-            continue
-        break
-
-    # determine the next pivot and column
-    column = leading_nonzero(matrix, pivot, max_column_number)
-    if (column >= max_col - 1) or (column == -1):
-        column = -2
-    next_pivot = pivot + 1
-    next_column = column + 1
-    return matrix, next_pivot, next_column
+    for col in range(pivot, max_column):
+        for row in range(pivot, matrix.shape[0]):
+            if matrix[row, col]:
+                return row, col
+    return -1, -1
 
 
-def reduced_row_echelon_form(matrix, max_column_number=0):
+def reduced_row_echelon_form(matrix, max_column=0):
     """
         Calculate reduced row echelon form of input matrix.
 
@@ -73,29 +59,24 @@ def reduced_row_echelon_form(matrix, max_column_number=0):
           matrix: np.ndarray, the reduced row echelon form of input matrix.
     """
 
-    matrix = np.array(matrix).astype(float) # copy original matrix
-    pivot = 0
-    column = 0
-    max_col = max_column_number if max_column_number else matrix.shape[1]
-
-    for _ in range(min(matrix.shape)):
-        # find and set pivot row
-        matrix, pivot, column = set_pivot_row(matrix, pivot, column, max_col)
-        # scaling the pivot row by inverse of leading nonzero number 
-        pivot_column = leading_nonzero(matrix, pivot - 1, max_col)
-        leading_number = matrix[pivot - 1][pivot_column]
-        scalar = 1 / leading_number if leading_number else 0
-        matrix = scaling(matrix, pivot - 1, scalar)
-
-        # row addition of pivot row and other rows
-        for row in range(matrix.shape[0]):
-            if row != pivot - 1:
-                scalar = -matrix[row][pivot_column]
-                matrix[row] += matrix[pivot - 1] * scalar
-
-        # remaining rows are zeros, no need to calculate
-        if column == -1:
+    matrix = np.array(matrix).astype(float)
+    max_column = max_column if max_column else matrix.shape[1]
+    for pivot in range(min(max_column, matrix.shape[0])):
+        # set pivot row in position
+        row_index, col_index = pivot_row(matrix, pivot, max_column)
+        if row_index == -1: # no more pivot postion, exit in advance
             break
+        matrix = interchange(matrix, pivot, row_index)
+
+        # scaling pivot row: multiply the inverse of leading nonzero number
+        pivot_number = matrix[pivot, col_index]
+        scalar = 1 / pivot_number # pivot_number should never be zero here
+        matrix = scaling(matrix, pivot, scalar)
+
+        # row elimination by pivot row to other rows
+        for row in range(matrix.shape[0]):
+            if (row != pivot) and (scalar := -matrix[row][col_index]):
+                matrix[row] += scalar * matrix[pivot]
 
     return matrix
 
