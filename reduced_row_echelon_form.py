@@ -73,7 +73,7 @@ def reduced_row_echelon_form(matrix, max_column_number=0):
           matrix: np.ndarray, the reduced row echelon form of input matrix.
     """
 
-    matrix = np.array(matrix) # copy original matrix
+    matrix = np.array(matrix).astype(float) # copy original matrix
     pivot = 0
     column = 0
     max_col = max_column_number if max_column_number else matrix.shape[1]
@@ -144,8 +144,6 @@ def column_vectors(matrix):
 
 
 if __name__ == '__main__':
-    from elementary_row_operation import to_ndarray
-    a1 = to_ndarray([[r*3+c for c in range(1, 4)] for r in range(0, 4)])
     a2 = np.array([[0, 0, 3], [2, 2, 3]])
     a3 = np.array([[0, 0, 1], [0, 3, 9]])
     a4 = np.array([[0, 0, 7], [0, 0, 0], [3, 0, 3]])
@@ -157,8 +155,8 @@ if __name__ == '__main__':
     a0 = np.array([[1, 2, 3], [4, 5, 6], [7, 8, 9]])
     a0 = np.concatenate((a0, np.identity(3)), axis=1)
 
-    matrix = a9
-    max_col = 0
+    matrix = a0
+    max_col = 3
     print(matrix)
     print(reduced_row_echelon_form(matrix, max_col))
     print(column_vectors(matrix))
