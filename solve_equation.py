@@ -1,6 +1,7 @@
 import numpy as np
 from reduced_row_echelon_form import reduced_row_echelon_form
 from reduced_row_echelon_form import leading_nonzero
+from lu_factorization import lu_factorization
 
 
 def solve_linear_equations(matrix):
@@ -62,6 +63,32 @@ def solve_linear_equations(matrix):
     return basic_vector, free_vectors
 
 
+def lu_linear_solution(matrix, y):
+    """
+        Solve a linear system by LU factorization and return both basic
+        vector and free vectors in column vectors. If the system is 
+        inconsistent, both basic vector and free vectors are empty vectors.
+
+        paras:
+          matrix: np.ndarray, the matrix to be LU decomposed.
+          y: np.ndarray, m x 1 dimension.
+    """
+
+    L, U, row_exchange = lu_factorization(matrix)    
+    y = (row_exchange @ np.array(y)).flatten()
+
+    # forward substitution: solve Ly' = y
+    for index, row in enumerate(L):
+        for i in range(index):
+            y[index] -= row[i] * y[i]
+        y[index] /= row[index]
+
+    # backward substitution: solve Uz = y' using "solve_linear_equations"
+    U = np.concatenate([U, y[:, np.newaxis]], 1)
+    basic_vector, free_vector = solve_linear_equations(U)
+    return basic_vector, free_vector
+
+
 if __name__ == '__main__':
     a1 = np.array([[1, 0, 0], [0, 0, 1], [0, 0, 0]])
     a2 = np.array([[0, 0, 3], [2, 2, 3]])
@@ -75,7 +102,14 @@ if __name__ == '__main__':
     a0 = np.array([[1, 0, 0, -3, 0], 
                    [0, 1, 0, -4, 0],
                    [0, 0, 1, 5, 0]])
-    matrix = a6
+
+    matrix = a0
     print(f'original matrix:\n{matrix}')
     s = solve_linear_equations(matrix)
-    print(f'solutions:\n{s[0]}\n{s[1]}')
+    print('---solutions by "solve_linear_equations"---')
+    print(f'basic:\n{s[0]}')
+    print(f'free:\n{s[1]}')
+    basic, free = lu_linear_solution(matrix[:, :-1], matrix[:, -1])
+    print('---solutions by LU---')
+    print(f'basic:\n{basic}')
+    print(f'free:\n{free}')
