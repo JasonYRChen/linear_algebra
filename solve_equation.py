@@ -89,6 +89,118 @@ def lu_linear_solution(matrix, y):
     return basic_vector, free_vector
 
 
+def _matrix_preprocess_for_iteration(matrix, constants):
+    """
+        This function is to build augmented matrix from 'matrix' and 
+        'constants', which represents linear system of equations like
+                  a1x + b1y = c1 ->  [a1 b1], [c1]
+                  a2x + b2y = c2 ->  [a2 b2], [c2]
+        Then transform it to
+                  x = c1/a1 - b1/a1y -> [0 -b1/a1], [c1/a1]
+                  y = c1/b2 - a2/b2x -> [-a2/b2 0], [c1/b2]
+        that each row of the transformed matrix represents the composition
+        of corresponding variable.
+
+        paras:
+          matrix: np.ndarray, n x n matrix.
+          constants: np.ndarray, nx1 array consists of constants of system.
+
+        return :
+          matrix: np.ndarray, n x n matrix.
+          constants: np.ndarray, nx1 array
+    """
+
+    matrix = np.array(matrix).astype(float)
+    constants = constants.astype(float)
+    for i, row in enumerate(matrix):
+        constants[i] = constants[i] / row[i]
+        row /= row[i]
+        row[i] = 0
+    ones = np.eye(matrix.shape[0], matrix.shape[0]) * -1.0
+    matrix = matrix @ ones
+    return matrix, constants
+
+
+def jacobi_iteration_core(matrix, constants, tolerance= 0.00001, 
+                          tolerance_function=None):
+    """
+        This function uses Jacobi iteration to find solution. It assumes the
+        matrix has well-permutated rows and is full-rank that guarantees to
+        find the solution.
+
+        paras:
+          matrix: np.ndarray, n x n matrix
+          constans: np.ndarray, nx1 dimension, the constants of the system.
+          tolerance: float, the tolerance between consecutive iterations.
+          tolerance_function: function returns bool, the function to compute
+            tolerance which must take two n x 1 np.ndarray of candidate 
+            solutions, a new one and a previous one, and 'tolerance' into
+            calculation. Returns True if 'tolerance' is satisfied, otherwise
+            returns False.
+    """
+
+    # prepare system for iterations
+    matrix, constants = _matrix_preprocess_for_iteration(matrix, constants)
+
+    # determine tolerance function
+    if tolerance_function is None:
+        # this lambda will crash when the true value is 0
+        tolerance_function = lambda x, y, t: (np.absolute((x-y)/y) <= t).all()
+        
+    # iterations
+    new_sol = np.zeros((matrix.shape[0], 1))
+    old_sol = np.zeros((matrix.shape[0], 1)) + tolerance
+    count = 0
+    while not tolerance_function(new_sol, old_sol, tolerance):
+        old_sol = new_sol
+        new_sol = matrix @ new_sol + constants
+        count += 1
+
+    print(f'----Iteration count: {count}----')
+    return new_sol
+
+
+def gauss_seidel_iteration_core(matrix, constants, tolerance= 0.00001, 
+                                tolerance_function=None):
+    """
+        This function uses Gauss-Seidel iteration to find the solution. It 
+        assumes the matrix has well-permutated rows and is full-rank that
+        guarantees to find the solution.
+
+        paras:
+          matrix: np.ndarray, n x n matrix
+          constans: np.ndarray, nx1 dimension, the constants of the system.
+          tolerance: float, the tolerance between consecutive iterations.
+          tolerance_function: function returns bool, the function to compute
+            tolerance which must take two n x 1 np.ndarray of candidate 
+            solutions, a new one and a previous one, and 'tolerance' into
+            calculation. Returns True if 'tolerance' is satisfied, otherwise
+            returns False.
+    """
+
+    # prepare system for iterations
+    matrix, constants = _matrix_preprocess_for_iteration(matrix, constants)
+
+    # determine tolerance function
+    if tolerance_function is None:
+        # this lambda will crash when the true value is 0
+        tolerance_function = lambda x, y, t: (np.absolute((x-y)/y) <= t).all()
+        
+    # iterations
+    new_sol = np.zeros((matrix.shape[0], 1))
+    old_sol = np.zeros((matrix.shape[0], 1)) + tolerance
+    count = 0
+    while not tolerance_function(new_sol, old_sol, tolerance):
+        old_sol = new_sol
+        new_sol = np.array(new_sol)
+        for i, row in enumerate(matrix):
+            new_sol[i, 0] = row @ new_sol + constants[i]
+        count += 1
+
+    print(f'----Iteration count: {count}----')
+    return new_sol
+
+
 if __name__ == '__main__':
     a1 = np.array([[1, 0, 0], [0, 0, 1], [0, 0, 0]])
     a2 = np.array([[0, 0, 3], [2, 2, 3]])
@@ -102,14 +214,19 @@ if __name__ == '__main__':
     a0 = np.array([[1, 0, 0, -3, 0], 
                    [0, 1, 0, -4, 0],
                    [0, 0, 1, 5, 0]])
+    s0 = (np.array([[5, 1, -1], [1, -5, 2], [1, -2, 10]]),
+          np.array([14, -9, -30])[:, np.newaxis])
 
-    matrix = a0
-    print(f'original matrix:\n{matrix}')
-    s = solve_linear_equations(matrix)
-    print('---solutions by "solve_linear_equations"---')
-    print(f'basic:\n{s[0]}')
-    print(f'free:\n{s[1]}')
-    basic, free = lu_linear_solution(matrix[:, :-1], matrix[:, -1])
-    print('---solutions by LU---')
-    print(f'basic:\n{basic}')
-    print(f'free:\n{free}')
+    system = s0
+    print(jacobi_iteration_core(system[0], system[1]))
+    print(gauss_seidel_iteration_core(system[0], system[1]))
+#    matrix = a3
+#    print(f'original matrix:\n{matrix}')
+#    s = solve_linear_equations(matrix)
+#    print('---solutions by "solve_linear_equations"---')
+#    print(f'basic:\n{s[0]}')
+#    print(f'free:\n{s[1]}')
+#    basic, free = lu_linear_solution(matrix[:, :-1], matrix[:, -1])
+#    print('---solutions by LU---')
+#    print(f'basic:\n{basic}')
+#    print(f'free:\n{free}')
