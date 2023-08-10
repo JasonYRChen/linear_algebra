@@ -189,15 +189,15 @@ def gauss_seidel_iteration_core(matrix, constants, tolerance= 0.00001,
     # iterations
     new_sol = np.zeros((matrix.shape[0], 1))
     old_sol = np.zeros((matrix.shape[0], 1)) + tolerance
-    count = 0
+#    count = 0
     while not tolerance_function(new_sol, old_sol, tolerance):
         old_sol = new_sol
         new_sol = np.array(new_sol)
         for i, row in enumerate(matrix):
             new_sol[i, 0] = row @ new_sol + constants[i]
-        count += 1
+#        count += 1
 
-    print(f'----Iteration count: {count}----')
+#    print(f'----Iteration count: {count}----')
     return new_sol
 
 
