@@ -72,15 +72,22 @@ def qr_method(matrix, decimal=7):
     eigenvectors = None
     rows = matrix.shape[0]
     identity = np.eye(rows)
+    used_eigenvalues = set()
     for eigenvalue in e_values:
-        mat = matrix - eigenvalue * identity
-        mat = np.hstack((mat, np.zeros((rows, 1))))
-        basic_vector, free_vectors = solve_linear_equations(mat)
-        eigenvalues.extend([eigenvalue] * free_vectors.shape[1])
-        if eigenvectors is None:
-            eigenvectors = free_vectors
-        else:
-            eigenvectors = np.hstack((eigenvectors, free_vectors))
+        if eigenvalue not in used_eigenvalues:
+            used_eigenvalues.add(eigenvalue)
+            mat = matrix - eigenvalue * identity
+            mat = np.hstack((mat, np.zeros((rows, 1))))
+            _, free_vectors = solve_linear_equations(mat)
+            eigenvalues.extend([eigenvalue] * free_vectors.shape[1])
+
+            # normalize eigenvectors
+            for i in range(free_vectors.shape[1]):
+                free_vectors[:, i] /= ((free_vectors[:, i] ** 2).sum()) ** 0.5
+            if eigenvectors is None:
+                eigenvectors = free_vectors
+            else:
+                eigenvectors = np.hstack((eigenvectors, free_vectors))
 
     return eigenvalues, eigenvectors
 
