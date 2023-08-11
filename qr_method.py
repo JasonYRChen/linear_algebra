@@ -89,6 +89,7 @@ def qr_method(matrix, decimal=7):
                 eigenvectors = free_vectors
             else:
                 eigenvectors = np.hstack((eigenvectors, free_vectors))
+    eigenvalues = np.array(eigenvalues)
 
     return eigenvalues, eigenvectors
 
