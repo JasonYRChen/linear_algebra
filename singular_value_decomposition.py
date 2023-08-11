@@ -2,6 +2,7 @@ import numpy as np
 from rank_and_nullity import rank
 from solve_equation import solve_linear_equations
 from gram_schmidt import modified_gram_schmidt
+from qr_method import qr_method
 
 
 def singular_value_decomposition(matrix):
@@ -28,6 +29,7 @@ def singular_value_decomposition(matrix):
 
     # find one of the basis spanning its dimension of the matrix
     eig_values, eig_vectors1 = np.linalg.eig(mat.T @ mat)
+    #eig_values, eig_vectors1 = qr_method(mat.T @ mat)
     # sort eig_values and eig_vectors according to descending eig_values
     sequence = np.argsort(eig_values)[::-1]
     eig_values = eig_values[sequence][:rank_]
