@@ -2,6 +2,8 @@ import numpy as np
 from inverse_matrix import inverse_matrix
 from rank_and_nullity import rank
 from singular_value_decomposition import singular_value_decomposition
+from qr_method import qr_decomposition
+from reduced_row_echelon_form import leading_nonzero
 
 
 """
@@ -12,6 +14,31 @@ eigenform for finding solutions, which may introduce extra floating errors.
 It is highly recommended to use "nonLI" functions when the system is 
 linearly dependent.
 """
+
+
+def least_square_coefficient_qr(matrix, y, need_intercept=False):
+    """
+           A.T @ A @ x = A.T @ b
+        => (Q @ R).T @ (Q @ R) @ x = (Q @ R).T @ b
+        => R @ x = Q.T @ b
+    """
+
+    if need_intercept:
+        matrix = np.array(matrix).astype(float)
+        matrix = np.concatenate((np.ones((matrix.shape[0], 1)), matrix), 1)
+
+    Q, R = qr_decomposition(matrix)
+    matrix = np.hstack((R, Q.T @ y))
+    solution = np.eye(*matrix.shape)
+    for i in range(matrix.shape[0]-1, -1, -1):
+        row_m = matrix[i]
+        pivot_index = leading_nonzero(matrix, i, matrix.shape[0])
+        solution[i] = row_m / row_m[pivot_index] - solution[i]
+        for j in range(matrix.shape[0]):
+            if solution[i, j]:
+                solution[i, -1] -= solution[i, j] * solution[j, -1]
+    coefficients = solution[:, -1]
+    return coefficients
 
 
 def orthogonal_projection_coefficient(matrix, y, need_intercept=False):
@@ -170,17 +197,20 @@ if __name__ == '__main__':
     t = np.array([0, 1, 2, 3, 3.5])[:, np.newaxis]
     s2 = (np.concatenate((t, t**2), 1),
           np.array([100, 118, 92, 48, 7])[:, np.newaxis])
+    s3 = (np.array([[2, 2, 6], [1, 4, -3], [2, -4, 9]]), 
+          np.array([1, -1, 4])[:, np.newaxis])
 
-    system = s1
-    U, S, V = singular_value_decomposition(system[0])
-    coef = orthogonal_projection_coefficient_nonLI(*system)
-    approx = orthogonal_projection_approximation_nonLI(*system)
-    coef_1 = orthogonal_projection_coefficient_nonLI(*system, True)
-    approx_1 = orthogonal_projection_approximation_nonLI(*system, True)
-    print(f'U:\n{U}')
-    print(f'S:\n{S}')
-    print(f'V:\n{V}')
-    print(f'coefficient:\n{coef}')
-    print(f'approximation:\n{approx}')
-    print(f'coefficient with intercept:\n{coef_1}')
-    print(f'approximation with intercept:\n{approx_1}')
+    system = s3
+    print(least_square_coefficient_qr(*system))
+#    U, S, V = singular_value_decomposition(system[0])
+#    coef = orthogonal_projection_coefficient_nonLI(*system)
+#    approx = orthogonal_projection_approximation_nonLI(*system)
+#    coef_1 = orthogonal_projection_coefficient_nonLI(*system, True)
+#    approx_1 = orthogonal_projection_approximation_nonLI(*system, True)
+#    print(f'U:\n{U}')
+#    print(f'S:\n{S}')
+#    print(f'V:\n{V}')
+#    print(f'coefficient:\n{coef}')
+#    print(f'approximation:\n{approx}')
+#    print(f'coefficient with intercept:\n{coef_1}')
+#    print(f'approximation with intercept:\n{approx_1}')
