@@ -60,13 +60,14 @@ def qr_method(matrix, decimal=7):
     """
 
     mat = np.array(matrix)
-    accuracy = 1 / 10**7
+    accuracy = 1 / 10 ** (decimal + 1) # '+1' here to avoid rounding error
+                                       # at rounding 'e_values'
     while not _is_upper_triangle(mat, accuracy):
         Q, R = qr_decomposition(mat)
         mat = R @ Q
 
     e_values = np.array(np.diag(mat)) # np.diag could only return the
-                                            # view of diagonal
+                                      # view of diagonal
     e_values = np.round(e_values, decimal)
     eigenvalues = []
     eigenvectors = None
