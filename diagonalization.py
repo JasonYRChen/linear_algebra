@@ -34,6 +34,6 @@ if __name__ == '__main__':
 
     matrix = a1
     p, d, p_inv = diagonalization(matrix)
-    print(matrix)
-    print(f'{p}\n{d}')
-    print(p @ d @ p_inv)
+    print(f'matrix:\n{matrix}')
+    print(f'p:\n{p}\nd:\n{d}')
+    print(f'p @ d @ p_inv:\n{p @ d @ p_inv}')
