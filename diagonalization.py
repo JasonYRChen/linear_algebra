@@ -1,5 +1,6 @@
 import numpy as np
 from inverse_matrix import inverse_matrix
+from qr_method import qr_method
 
 
 def diagonalization(matrix):
@@ -18,7 +19,8 @@ def diagonalization(matrix):
           inverse_e_vectors: np.ndarray, an inverse matrix of e_vectors.
     """
 
-    e_values, e_vectors = np.linalg.eig(matrix)
+    #e_values, e_vectors = np.linalg.eig(matrix) # use built-in function
+    e_values, e_vectors = qr_method(matrix) # use self-made function
     diagonal = np.eye(len(e_values))
     for i, value in enumerate(e_values):
         diagonal[:, i] *= value
