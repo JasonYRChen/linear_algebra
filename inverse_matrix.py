@@ -2,7 +2,7 @@ import numpy as np
 from reduced_row_echelon_form import reduced_row_echelon_form
 
 
-def inverse_matrix(matrix):
+def inverse_matrix(matrix, error=0.00000001):
     """
         Calculate inverse matrix and return using Gaussian elimination.
         If the matrix is not inversible, return empty np.ndarray instead.
@@ -25,7 +25,7 @@ def inverse_matrix(matrix):
         matrix = reduced_row_echelon_form(matrix, dim_row)
 
         reduced_matrix = matrix[:, :dim_row] # leading nonzero must be 1
-        nonzero_row, nonzero_col = np.where(reduced_matrix != 0)
+        nonzero_row, nonzero_col = np.where(reduced_matrix >= error)
         # check if reduced matrix is an identity matrix
         if len(nonzero_row) == dim_row:
             for row, col in zip(nonzero_row, nonzero_col):
